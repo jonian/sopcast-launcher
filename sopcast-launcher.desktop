@@ -11,5 +11,4 @@ Type=Application
 Categories=AudioVideo;Player;Recorder;
 MimeType=x-scheme-handler/sop;
 X-KDE-Protocols=sop
-Keywords=Player;Capture;DVD;Audio;Video;Server;Broadcast;
 NoDisplay=true
