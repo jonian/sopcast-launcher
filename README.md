@@ -8,7 +8,7 @@ Sopcast Launcher allows you to open Sopcast links with a Media Player of your ch
     sopcast-launcher [--localport LOCALPORT] [--playerport PLAYERPORT] [--player PLAYER] URL
 
 ## Positional arguments
-    URL              The sopcast url to play
+    URL                       The sopcast url to play
 
 ## Optional arguments
     -h, --help                show this help message and exit
