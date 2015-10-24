@@ -3,8 +3,8 @@
 
 import sys
 import time
+import socket
 import psutil
-import pexpect
 import pynotify
 import argparse
 
@@ -52,7 +52,6 @@ class SopcastLauncher(object):
         self.notifier = pynotify.Notification(self.appname)
 
         self.start_sopcast()
-        self.start_session()
         self.start_player()
         self.close_player()
 
@@ -61,37 +60,43 @@ class SopcastLauncher(object):
 
         for process in psutil.process_iter():
             if 'sp-sc' in process.name():
-                process.terminate()
+                process.kill()
 
         sopurl = self.args.url
         localport = self.args.localport
         playerport = self.args.playerport
 
-        self.url = 'http://localhost:' + playerport
+        self.url = 'http://localhost:' + playerport + '/sopcast.mp4'
 
         self.sopcast = psutil.Popen(['sp-sc', sopurl, localport, playerport])
         self.notifier.update(self.appname, self.messages['running'], self.icon)
         self.notifier.show()
 
-        time.sleep(2)
-
-    def start_session(self):
-        """Start sopcast session"""
+        time.sleep(5)
 
         try:
-            session = pexpect.spawn('telnet localhost ' + self.args.localport)
-            session.timeout = 5
-            session.expect([pexpect.TIMEOUT, 'Escape character.+'])
+            session = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            session.connect(('localhost', int(playerport)))
+
+            time.sleep(10)
+
+            session.send('state\ns\n')
+            session.send('state\ns\n')
+
+            state = session.recv(128).replace(' ', '')
+
+            if int(state) == 0:
+                raise(ValueError)
 
             self.notifier.update(self.appname, self.messages['started'], self.icon)
             self.notifier.show()
-        except (pexpect.TIMEOUT, pexpect.EOF):
+        except(socket.error, ValueError):
             print('Error connecting to Sopcast...')
             self.notifier.update(self.appname, self.messages['unavailable'], self.icon)
             self.notifier.show()
 
-            self.sopcast.terminate()
-            sys.exit(0)
+            self.sopcast.kill()
+            sys.exit(1)
 
     def start_player(self):
         """Start the media player"""
@@ -103,12 +108,12 @@ class SopcastLauncher(object):
         """Close sopcast and media player"""
 
         try:
-            self.player.terminate()
+            self.player.kill()
         except (AttributeError, psutil.NoSuchProcess):
             print('Media Player not running...')
 
         try:
-            self.sopcast.terminate()
+            self.sopcast.kill()
         except (AttributeError, psutil.NoSuchProcess):
             print('Sopcast not running...')
 
@@ -127,7 +132,7 @@ def main():
 
         for process in psutil.process_iter():
             if 'sp-sc' in process.name():
-                process.terminate()
+                process.kill()
 
         sys.exit(0)
 
