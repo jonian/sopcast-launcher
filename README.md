@@ -5,7 +5,7 @@ Sopcast Launcher allows you to open Sopcast links with a Media Player of your ch
     python, python-psutil, python-notify, sopcast
 
 ## Usage
-    sopcast-launcher [--localport LOCALPORT] [--playerport PLAYERPORT] [--player PLAYER] URL
+    sopcast-launcher URL [--localport LOCALPORT] [--playerport PLAYERPORT] [--player PLAYER]
 
 ## Positional arguments
     URL                       The sopcast url to play
