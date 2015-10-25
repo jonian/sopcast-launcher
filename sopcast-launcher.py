@@ -44,6 +44,7 @@ class SopcastLauncher(object):
         self.messages = {
             'running': 'Sopcast engine running.',
             'started': 'Streaming started. Launching player.',
+            'waiting': 'Waiting for channel response...',
             'unavailable': 'Sopcast channel unavailable!',
             'terminated': 'Sopcast engine terminated.'
         }
@@ -52,6 +53,7 @@ class SopcastLauncher(object):
         self.notifier = pynotify.Notification(self.appname)
 
         self.start_sopcast()
+        self.start_session()
         self.start_player()
         self.close_player()
 
@@ -74,25 +76,29 @@ class SopcastLauncher(object):
 
         time.sleep(5)
 
+    def start_session(self):
+        """Start sopcast socket session"""
+
         try:
             session = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            session.connect(('localhost', int(playerport)))
+            session.settimeout(5)
+            session.connect(('localhost', int(self.args.playerport)))
 
-            time.sleep(10)
+            self.notifier.update(self.appname, self.messages['waiting'], self.icon)
+            self.notifier.show()
 
-            session.send('state\ns\n')
-            session.send('state\ns\n')
+            session.settimeout(30)
+            session.send('GET %s HTTP/1.0\r\n\r\n')
+            state = session.recv(128)
 
-            state = session.recv(1024).replace(' ', '')
-
-            if int(state) == 0:
-                raise(ValueError)
+            if not '200 OK' in state:
+                raise(socket.error)
 
             session.close()
 
             self.notifier.update(self.appname, self.messages['started'], self.icon)
             self.notifier.show()
-        except(socket.error, ValueError):
+        except(socket.error):
             print('Error connecting to Sopcast...')
             self.notifier.update(self.appname, self.messages['unavailable'], self.icon)
             self.notifier.show()
