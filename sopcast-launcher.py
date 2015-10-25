@@ -83,10 +83,12 @@ class SopcastLauncher(object):
             session.send('state\ns\n')
             session.send('state\ns\n')
 
-            state = session.recv(128).replace(' ', '')
+            state = session.recv(1024).replace(' ', '')
 
             if int(state) == 0:
                 raise(ValueError)
+
+            session.close()
 
             self.notifier.update(self.appname, self.messages['started'], self.icon)
             self.notifier.show()
