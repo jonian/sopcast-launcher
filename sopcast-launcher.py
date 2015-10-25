@@ -79,13 +79,13 @@ class SopcastLauncher(object):
     def start_session(self):
         """Start sopcast socket session"""
 
+        self.notifier.update(self.appname, self.messages['waiting'], self.icon)
+        self.notifier.show()
+
         try:
             session = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             session.settimeout(30)
             session.connect(('localhost', int(self.args.playerport)))
-
-            self.notifier.update(self.appname, self.messages['waiting'], self.icon)
-            self.notifier.show()
 
             session.send('GET %s HTTP/1.0\r\n\r\n')
             state = session.recv(128)
