@@ -2,7 +2,7 @@
 Sopcast Launcher allows you to open Sopcast links with a Media Player of your choice
 
 ## Dependencies
-    python, python-psutil, python-notify, sopcast
+    python, python-psutil, python-notify2, sopcast
 
 ## Usage
     sopcast-launcher URL [--localport LOCALPORT] [--playerport PLAYERPORT] [--player PLAYER]

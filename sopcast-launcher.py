@@ -1,11 +1,11 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import sys
 import time
 import socket
 import psutil
-import pynotify
+import notify2
 import argparse
 
 class SopcastLauncher(object):
@@ -49,8 +49,8 @@ class SopcastLauncher(object):
             'terminated': 'Sopcast engine terminated.'
         }
 
-        pynotify.init(self.appname)
-        self.notifier = pynotify.Notification(self.appname)
+        notify2.init(self.appname)
+        self.notifier = notify2.Notification(self.appname)
 
         self.start_sopcast()
         self.start_session()
@@ -82,22 +82,17 @@ class SopcastLauncher(object):
         self.notifier.update(self.appname, self.messages['waiting'], self.icon)
         self.notifier.show()
 
+        time.sleep(25)
+
         try:
             session = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             session.settimeout(30)
             session.connect(('localhost', int(self.args.playerport)))
-
-            session.send('GET %s HTTP/1.0\r\n\r\n')
-            state = session.recv(128)
-
-            if not '200 OK' in state:
-                raise(socket.error)
-
             session.close()
 
             self.notifier.update(self.appname, self.messages['started'], self.icon)
             self.notifier.show()
-        except(socket.error):
+        except socket.error:
             print('Error connecting to Sopcast...')
             self.notifier.update(self.appname, self.messages['unavailable'], self.icon)
             self.notifier.show()
