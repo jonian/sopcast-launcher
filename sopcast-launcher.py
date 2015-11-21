@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""Sopcast Launcher: Open sopcast links with any media player"""
+
 import sys
 import time
 import socket
@@ -9,7 +11,7 @@ import notify2
 import argparse
 
 class SopcastLauncher(object):
-    """Sopcast Launcher: Open sopcast links with any media player"""
+    """Sopcast Launcher"""
 
     def __init__(self):
         parser = argparse.ArgumentParser(
@@ -37,17 +39,8 @@ class SopcastLauncher(object):
             default='vlc'
         )
 
-        self.args = parser.parse_args()
-
         self.appname = 'Sopcast Launcher'
-        self.icon = self.args.player
-        self.messages = {
-            'running': 'Sopcast engine running.',
-            'started': 'Streaming started. Launching player.',
-            'waiting': 'Waiting for channel response...',
-            'unavailable': 'Sopcast channel unavailable!',
-            'terminated': 'Sopcast engine terminated.'
-        }
+        self.args = parser.parse_args()
 
         notify2.init(self.appname)
         self.notifier = notify2.Notification(self.appname)
@@ -56,6 +49,22 @@ class SopcastLauncher(object):
         self.start_session()
         self.start_player()
         self.close_player()
+
+    def notify(self, message):
+        """Show player status notifications"""
+
+        icon = self.args.player
+        messages = {
+            'running': 'Sopcast engine running.',
+            'started': 'Streaming started. Launching player.',
+            'waiting': 'Waiting for channel response...',
+            'unavailable': 'Sopcast channel unavailable!',
+            'terminated': 'Sopcast engine terminated.'
+        }
+
+        print(messages[message])
+        self.notifier.update(self.appname, messages[message], icon)
+        self.notifier.show()
 
     def start_sopcast(self):
         """Start sopcast service"""
@@ -71,17 +80,13 @@ class SopcastLauncher(object):
         self.url = 'http://localhost:' + playerport + '/sopcast.mp4'
 
         self.sopcast = psutil.Popen(['sp-sc', sopurl, localport, playerport])
-        self.notifier.update(self.appname, self.messages['running'], self.icon)
-        self.notifier.show()
-
+        self.notify('running')
         time.sleep(5)
 
     def start_session(self):
         """Start sopcast socket session"""
 
-        self.notifier.update(self.appname, self.messages['waiting'], self.icon)
-        self.notifier.show()
-
+        self.notify('waiting')
         time.sleep(25)
 
         try:
@@ -89,16 +94,10 @@ class SopcastLauncher(object):
             session.settimeout(30)
             session.connect(('localhost', int(self.args.playerport)))
             session.close()
-
-            self.notifier.update(self.appname, self.messages['started'], self.icon)
-            self.notifier.show()
+            self.notify('started')
         except socket.error:
-            print('Error connecting to Sopcast...')
-            self.notifier.update(self.appname, self.messages['unavailable'], self.icon)
-            self.notifier.show()
-
-            self.sopcast.kill()
-            sys.exit(1)
+            self.notify('unavailable')
+            self.close_player(1)
 
     def start_player(self):
         """Start the media player"""
@@ -106,7 +105,7 @@ class SopcastLauncher(object):
         self.player = psutil.Popen([self.args.player, self.url])
         self.player.wait()
 
-    def close_player(self):
+    def close_player(self, code=0):
         """Close sopcast and media player"""
 
         try:
@@ -116,13 +115,11 @@ class SopcastLauncher(object):
 
         try:
             self.sopcast.kill()
+            self.notify('terminated')
         except (AttributeError, psutil.NoSuchProcess):
             print('Sopcast not running...')
 
-        self.notifier.update(self.appname, self.messages['terminated'], self.icon)
-        self.notifier.show()
-
-        sys.exit(0)
+        sys.exit(code)
 
 def main():
     """Start Sopcast Launcher"""
