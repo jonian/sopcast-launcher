@@ -58,8 +58,7 @@ class SopcastLauncher(object):
             'running': 'Sopcast engine running.',
             'started': 'Streaming started. Launching player.',
             'waiting': 'Waiting for channel response...',
-            'unavailable': 'Sopcast channel unavailable!',
-            'terminated': 'Sopcast engine terminated.'
+            'unavailable': 'Sopcast channel unavailable!'
         }
 
         print(messages[message])
@@ -94,6 +93,7 @@ class SopcastLauncher(object):
             session.settimeout(30)
             session.connect(('localhost', int(self.args.playerport)))
             session.close()
+
             self.notify('started')
         except socket.error:
             self.notify('unavailable')
@@ -115,7 +115,6 @@ class SopcastLauncher(object):
 
         try:
             self.sopcast.kill()
-            self.notify('terminated')
         except (AttributeError, psutil.NoSuchProcess):
             print('Sopcast not running...')
 
