@@ -6,9 +6,9 @@
 import sys
 import time
 import socket
+import argparse
 import psutil
 import notify2
-import argparse
 
 class SopcastLauncher(object):
     """Sopcast Launcher"""
@@ -21,21 +21,26 @@ class SopcastLauncher(object):
         parser.add_argument(
             'url',
             metavar='URL',
-            help='The sopcast url to play'
+            help='the sopcast url to play'
+        )
+        parser.add_argument(
+            '--engine-path',
+            help='the sopcast engine executable to use (default: system)',
+            default='/usr/bin/sp-sc'
         )
         parser.add_argument(
             '--localport',
-            help='The local port to use (default: 3000)',
+            help='the local port to use (default: 3000)',
             default='3000'
         )
         parser.add_argument(
             '--playerport',
-            help='The player port to use (default: 3001)',
+            help='the player port to use (default: 3001)',
             default='3001'
         )
         parser.add_argument(
             '--player',
-            help='The media player to use (default: vlc)',
+            help='the media player to use (default: vlc)',
             default='vlc'
         )
 
@@ -58,6 +63,7 @@ class SopcastLauncher(object):
             'running': 'Sopcast engine running.',
             'started': 'Streaming started. Launching player.',
             'waiting': 'Waiting for channel response...',
+            'noengine': 'Sopcast engine not found in provided path!',
             'unavailable': 'Sopcast channel unavailable!'
         }
 
@@ -72,15 +78,20 @@ class SopcastLauncher(object):
             if 'sp-sc' in process.name():
                 process.kill()
 
+        engine = self.args.engine_path
         sopurl = self.args.url
         localport = self.args.localport
         playerport = self.args.playerport
 
         self.url = 'http://localhost:' + playerport + '/sopcast.mp4'
 
-        self.sopcast = psutil.Popen(['sp-sc', sopurl, localport, playerport])
-        self.notify('running')
-        time.sleep(5)
+        try:
+            self.sopcast = psutil.Popen([engine, sopurl, localport, playerport])
+            self.notify('running')
+            time.sleep(5)
+        except FileNotFoundError:
+            self.notify('noengine')
+            self.close_player(1)
 
     def start_session(self):
         """Start sopcast socket session"""
