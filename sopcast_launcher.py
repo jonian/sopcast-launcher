@@ -40,7 +40,7 @@ class SopcastLauncher(object):
         )
         parser.add_argument(
             '--player',
-            help='the media player to use (default: vlc)',
+            help='the media player command to use (default: vlc)',
             default='vlc'
         )
 
@@ -113,7 +113,10 @@ class SopcastLauncher(object):
     def start_player(self):
         """Start the media player"""
 
-        self.player = psutil.Popen([self.args.player, self.url])
+        player_args = self.args.player.split()
+        player_args.append(self.url)
+
+        self.player = psutil.Popen(player_args)
         self.player.wait()
 
     def close_player(self, code=0):
