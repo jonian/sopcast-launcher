@@ -24,7 +24,7 @@ class SopcastLauncher(object):
             help='the sopcast url to play'
         )
         parser.add_argument(
-            '--engine',
+            '-e', '--engine',
             help='the sopcast engine command to use (default: sp-sc)',
             default='sp-sc'
         )
@@ -39,7 +39,7 @@ class SopcastLauncher(object):
             default='3001'
         )
         parser.add_argument(
-            '--player',
+            '-p', '--player',
             help='the media player command to use (default: vlc)',
             default='vlc'
         )
