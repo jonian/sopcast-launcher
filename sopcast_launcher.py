@@ -24,11 +24,6 @@ class SopcastLauncher(object):
             help='the sopcast url to play'
         )
         parser.add_argument(
-            '-e', '--engine',
-            help='the sopcast engine command to use (default: sp-sc)',
-            default='sp-sc'
-        )
-        parser.add_argument(
             '--localport',
             help='the local port to use (default: 3000)',
             default='3000'
@@ -37,6 +32,11 @@ class SopcastLauncher(object):
             '--playerport',
             help='the player port to use (default: 3001)',
             default='3001'
+        )
+        parser.add_argument(
+            '-e', '--engine',
+            help='the sopcast engine command to use (default: sp-sc)',
+            default='sp-sc'
         )
         parser.add_argument(
             '-p', '--player',
