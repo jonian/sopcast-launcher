@@ -24,9 +24,9 @@ class SopcastLauncher(object):
             help='the sopcast url to play'
         )
         parser.add_argument(
-            '--engine-path',
-            help='the sopcast engine executable to use (default: system)',
-            default='/usr/bin/sp-sc'
+            '--engine',
+            help='the sopcast engine command to use (default: sp-sc)',
+            default='sp-sc'
         )
         parser.add_argument(
             '--localport',
@@ -74,19 +74,19 @@ class SopcastLauncher(object):
     def start_sopcast(self):
         """Start sopcast service"""
 
+        self.url = 'http://localhost:' + self.args.playerport + '/sopcast.mp4'
+
         for process in psutil.process_iter():
             if 'sp-sc' in process.name():
                 process.kill()
 
-        engine = self.args.engine_path
-        sopurl = self.args.url
-        localport = self.args.localport
-        playerport = self.args.playerport
-
-        self.url = 'http://localhost:' + playerport + '/sopcast.mp4'
-
         try:
-            self.sopcast = psutil.Popen([engine, sopurl, localport, playerport])
+            engine_args = self.args.engine.split()
+            engine_args.append(self.args.url)
+            engine_args.append(self.args.localport)
+            engine_args.append(self.args.playerport)
+
+            self.sopcast = psutil.Popen(engine_args)
             self.notify('running')
             time.sleep(5)
         except FileNotFoundError:
