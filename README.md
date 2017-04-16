@@ -18,4 +18,7 @@ Sopcast Launcher allows you to open Sopcast links with a Media Player of your ch
     --playerport PORT        The player port to use (default: 3001)
 
 ## Installation
+Install required dependencies and run `install.sh` as root. The script will install sopcast-launcher in `opt` directory.
+
+## Packages
 Arch Linux: [AUR Package](https://aur.archlinux.org/packages/sopcast-launcher)
