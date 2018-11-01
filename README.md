@@ -21,5 +21,5 @@ Sopcast Launcher allows you to open Sopcast links with a Media Player of your ch
 Install required dependencies and run `install.sh` as root. The script will install sopcast-launcher in `opt` directory.
 
 ## Packages
-Arch Linux: [AUR Package](https://aur.archlinux.org/packages/sopcast-launcher)
+Arch Linux: [AUR Package](https://aur.archlinux.org/packages/sopcast-launcher)  
 OpenSUSE: [Build Service](https://build.opensuse.org/project/show/home:drommer:p2pstreams) by [@Drommer](https://github.com/Drommer)
